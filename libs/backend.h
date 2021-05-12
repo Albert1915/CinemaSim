@@ -11,10 +11,9 @@
 
     extern void initCinema(hash* obj);
     extern void addCust(hash* cinema, char* name, char* film);
+    extern void getCinemaStats(hash* obj);
+    static char* getSuggestions(); // Placeholders
     static char* generateAlias(char* name);
     static int generateHash(char* name);
-    static int getHash(char* name);
-    static hash isExist(char* ame);
-    static hash getAddress(hash obj, char* name);
     static unsigned length(const unsigned long num);
 #endif

@@ -14,8 +14,20 @@ void initCinema(hash* obj) {
 
 void addCust(hash* cinema, char* name, char* film) {
     int hashVal = generateHash(name);
-    printf("%d %s %s\n", cinema, name, film);
-    printf("[%d] Alias => %s\n",generateHash(name), generateAlias(name));
+    
+    hash custData = malloc(sizeof(struct hash_t));
+    custData->name = calloc(255, sizeof(char));
+    custData->film = calloc(255, sizeof(char));
+    strcpy(custData->name, name);
+    strcpy(custData->film, film);
+    custData->next = NULL;
+
+    if (cinema[hashVal] != NULL) {
+        // INVALID
+        printf("Invalid\n");
+    } else {
+        cinema[hashVal] = custData;
+    }
 }
 
 static char* generateAlias(char* name) {
@@ -54,4 +66,20 @@ int generateHash(char* name) {
 unsigned length(const unsigned long num) {
     if (num < 10) return 1;
     return 1 + length(num/10);
+}
+
+void getCinemaStats(hash* obj) {
+    for (int i=0; i<MAX_ARR; i++) {
+        hash temp = obj[i];
+        if (temp != NULL) {
+            printf("[%d] %s -> %s\n", i, temp->name, temp->film);
+            if (temp->next) {
+                printf("%s\n", "Branches!");
+                while (temp) {
+                    printf("[%d] %s -> %s\n", i, temp->name, temp->film);
+                    temp = temp->next;
+                }
+            }
+        }
+    }
 }

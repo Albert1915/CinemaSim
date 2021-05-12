@@ -10,5 +10,6 @@ int main(int argc, char* argv[]) {
     hash studioC[100] = {0};
     addCust(studioA, "Keyaruga Keyaru", "Kaifuku no Kaijutsu");
     addCust(studioA, "Keyaruga Kai", "Kaifuku no Kaijutsu");
-
+    addCust(studioA, "Lynne Fuyuna", "Marciless");
+    getCinemaStats(studioA);
 }

@@ -5,6 +5,9 @@
 		},
 		{
 			"path": ".."
+		},
+		{
+			"path": "..\\..\\college\\Data Structure"
 		}
 	],
 	"settings": {}

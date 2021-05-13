@@ -5,23 +5,12 @@
 
 int main(int argc, char* argv[]) {
     hash studioA[100];
-    initCinema(studioA);
-    hash studioB[100] = {0};
-    hash studioC[100] = {0};
-    char* titles[6] = {0};
-    
-    int graph[MAX_NODE][MAX_NODE] = {
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0}
-    };
-    
-    getData(graph, titles);
+    hash studioB[100];
+    hash studioC[100];
+    initCinema(studioA, studioB, studioC);
+    // getData();
 
-    addCust(studioA, "Keyaruga Keyaru", "Kaifuku no Kaijutsu");
+    addCust(studioA, "Keyaruga Keyaru", "Attack on Titan");
     addCust(studioA, "Keyaruga Kai", "Kaifuku no Kaijutsu");
     addCust(studioA, "Lynne Fuyuna", "Marciless");
     getCinemaStats(studioA);

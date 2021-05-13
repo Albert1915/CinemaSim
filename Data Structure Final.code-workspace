@@ -10,5 +10,9 @@
 			"path": "..\\..\\college"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"stdio.h": "c"
+		}
+	}
 }

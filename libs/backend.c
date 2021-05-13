@@ -3,30 +3,52 @@
 #include <conio.h>
 #include <string.h>
 #include <math.h>
-
 #include "backend.h"
 
-void initCinema(hash* obj) {
+static char* filmList[MAX_NODE] = {0};
+static char* airingList[3] = {0};
+static int schedules[MAX_NODE][MAX_NODE];
+
+void initCinema(hash* studioA, hash* studioB, hash* studioC) {
+    char* filename = "cinemaSch.data";
+    int colored[MAX_NODE] = {0};
     for (int i=0; i<MAX_ARR; i++) {
-        obj[i] = NULL;
+        studioA[i] = NULL;
+        studioB[i] = NULL;
+        studioC[i] = NULL;
+    }
+
+    parseFilm(filename, schedules);
+    parseTitle(filename, filmList);
+    colorized(schedules, colored);
+
+    for (int i=0; i<MAX_NODE; i++) {
+        if (colored[i] == 0 || colored[i] == 1 || colored[i] == 2) {
+            if (!airingList[colored[i]]) {
+                airingList[colored[i]] = strdup(filmList[colored[i]]);
+            }
+        }
     }
 }   
 
 void addCust(hash* cinema, char* name, char* film) {
-    int hashVal = generateHash(name);
-    
     hash custData = malloc(sizeof(struct hash_t));
     custData->name = calloc(255, sizeof(char));
     custData->film = calloc(255, sizeof(char));
-    strcpy(custData->name, name);
-    strcpy(custData->film, film);
     custData->next = NULL;
 
-    if (cinema[hashVal] != NULL) {
-        // INVALID
-        printf("Invalid\n");
+    if (isFilmAvailable(film)) {
+        int hashVal = generateHash(name);
+        strcpy(custData->name, name);
+        strcpy(custData->film, film);
+
+        if (cinema[hashVal] != NULL) {
+            filmSuggestion(film);
+        } else {
+            cinema[hashVal] = custData;
+        }
     } else {
-        cinema[hashVal] = custData;
+        filmSuggestion(film);
     }
 }
 
@@ -68,6 +90,30 @@ unsigned length(const unsigned long num) {
     return 1 + length(num/10);
 }
 
+static int filmSuggestion(char* film) {
+    char ans[3];
+    printf("%s belum ditayangkan saat ini, apakah anda ingin mencoba memesan film lainnya ?\n", film);
+    printf("Jawaban [y/n]: ");
+    scanf("%s", ans);
+
+    if (!strcmp(ans, "y")) {
+        printf("Berikut film yang hari ini sedang ditayangkan:\n");
+        for (int i=0; i<3; i++) {
+            printf("[%d] %s\n", i+1, airingList[i]);
+        }
+        printf("Ketik angka yang sesuai untuk memesan film atau ketik 4 untuk membatalkan pemesanan: ");
+        scanf("%s", ans);
+
+        if (atoi(ans) % 4 != 0) {
+            // Func Pembayaran
+        } else {
+            orderCanceled();
+        }
+    } else {
+        orderCanceled();
+    }
+}
+
 void getCinemaStats(hash* obj) {
     for (int i=0; i<MAX_ARR; i++) {
         hash temp = obj[i];
@@ -77,10 +123,12 @@ void getCinemaStats(hash* obj) {
     }
 }
 
-void getData(int matrices[MAX_NODE][MAX_NODE], char* model[MAX_NODE]) {
-    char* filename = "cinemaSch.data";
-    parseFilm(filename, matrices);
-    parseTitle(filename, model);
+static int isFilmAvailable(char* film) {
+    if (airingList[0] == 0) return 0;
+    for (int i=0; i<3; i++) {
+        if (!strcmp(film, airingList[i])) return 1;
+    }
+    return 0;
 }
 
 static void parseTitle(char* filename, char* obj[6]) {
@@ -107,6 +155,12 @@ static void parseFilm(char* filename, int obj[MAX_NODE][MAX_NODE]) {
     char* temp = calloc(255, sizeof(char));
     int isData = 0;
     int idx = -1;
+
+    for (int i=0; i<MAX_NODE; i++) {
+        for (int j=0; j<MAX_NODE; j++) {
+            obj[i][j] = 0;
+        }
+    }
 
     while (fgets(buff, 255, rawFile)) {
         temp = strtok(buff, "\n");

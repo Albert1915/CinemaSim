@@ -10,7 +10,7 @@ void initCinema(hash* obj) {
     for (int i=0; i<MAX_ARR; i++) {
         obj[i] = NULL;
     }
-}
+}   
 
 void addCust(hash* cinema, char* name, char* film) {
     int hashVal = generateHash(name);
@@ -73,13 +73,94 @@ void getCinemaStats(hash* obj) {
         hash temp = obj[i];
         if (temp != NULL) {
             printf("[%d] %s -> %s\n", i, temp->name, temp->film);
-            if (temp->next) {
-                printf("%s\n", "Branches!");
-                while (temp) {
-                    printf("[%d] %s -> %s\n", i, temp->name, temp->film);
-                    temp = temp->next;
+        }
+    }
+}
+
+void getData(int matrices[MAX_NODE][MAX_NODE], char* model[MAX_NODE]) {
+    char* filename = "cinemaSch.data";
+    parseFilm(filename, matrices);
+    parseTitle(filename, model);
+}
+
+static void parseTitle(char* filename, char* obj[6]) {
+    FILE* rawFile = fopen(filename, "r+");
+    char* buff = calloc(255, sizeof(char));
+    char* temp = calloc(255, sizeof(char));
+    int ctr = -1;
+    int isData = 0;
+
+    while (fgets(buff, 255, rawFile)) {
+        temp = strtok(buff, "\n");
+        if (!strcmp(temp, "title_Start")) isData = 1;
+        if (!strcmp(temp, "title_End")) isData = 0;
+
+        if (isData && strcmp(buff, "title_Start") && strcmp(buff, "title_End")) {
+            obj[++ctr] = strdup(temp);
+        }
+    }
+}
+
+static void parseFilm(char* filename, int obj[MAX_NODE][MAX_NODE]) {
+    FILE* rawFile = fopen(filename, "r+");
+    char* buff = calloc(255, sizeof(char));
+    char* temp = calloc(255, sizeof(char));
+    int isData = 0;
+    int idx = -1;
+
+    while (fgets(buff, 255, rawFile)) {
+        temp = strtok(buff, "\n");
+        if (!strcmp(temp, "data_start")) isData = 1;
+        if (!strcmp(temp, "data_end")) isData = 0;
+
+        if (isData && strcmp(buff, "data_start") && strcmp(buff, "data_end")) {
+            idx = atoi(strtok(temp, " "));
+            do {
+                temp = strtok(NULL, " ");
+                obj[idx][atoi(temp)] = 1;
+            } while (temp != NULL);
+        }
+    }
+}
+
+static void colorized(int matrices[MAX_NODE][MAX_NODE], int* res) {
+    int color[MAX_NODE];
+    color[0] = 0;
+
+    int colorUsed[MAX_NODE];
+
+    for (int i=1; i<MAX_NODE; i++) {
+        color[i] = -1;
+    }
+
+    for (int i=0; i<MAX_NODE; i++) {
+        colorUsed[i] = 0;
+    }
+
+    for (int u=1; u<MAX_NODE; u++) {
+        for (int v=0; v<MAX_NODE; v++) {
+            if (matrices[u][v]) {
+                if (color[v] != -1) {
+                    colorUsed[color[v]] = 1;
+                }
+            }
+        }
+
+        int col;
+        for (col=0; col<MAX_NODE; col++) {
+            if (!colorUsed[col]) break;
+        }
+        color[u] = col;
+        
+        for (int v=0; v<MAX_NODE; v++) {
+            if (matrices[u][v]) {
+                if (color[v] != -1) {
+                    colorUsed[color[v]] = 0;
                 }
             }
         }
     }
+
+    for (int x=0; x<MAX_NODE; x++) res[x] = color[x];
 }
+

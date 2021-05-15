@@ -9,11 +9,13 @@ struct node{
 
 void enter_q(struct node *start, char*cusin);
 void display_q(struct node *start);
+void keluar(struct node *start);
 
 // void main()
 // {
 //     char cusin[100];
 //     struct node *start = NULL;
+//     int pilih;
 //     //masuk antrian
 //     puts("Cinema XXI Queue");
 //     //Gimana caranya input beberapa string ke linkedlist sekaligus
@@ -22,6 +24,8 @@ void display_q(struct node *start);
 //         gets(cusin);
 //         fflush(stdin);
 //         enter_q(start,cusin);
+//         display_q(start);
+//         keluar(start);
 //         display_q(start);
 //     }
 // }
@@ -50,14 +54,30 @@ void display_q(struct node*start)
     struct node *dp;
     if(front == NULL)
     {
-        printf("Underflow");
+        printf("\nUnderflow");
         return;
     }
     dp = front;
-    printf("Cinema Queue XXI:");
+    printf("\nCinema Queue XXI:\n");
     while(dp!=NULL){
-        printf("\n%s",i,dp->iden);
+        printf("%s",dp->iden);
         dp = dp->link;
         i++;
     }
+}
+
+void keluar(struct node*start)
+{
+    char cusin[100];
+    struct node *del;
+    del = (struct node*)malloc(sizeof(struct node));
+    if (front == NULL)
+    {
+        printf("\nUnderflow");
+        return;
+    }
+    del = front;
+    strcpy(cusin,del->iden);
+    front = front ->link;
+    free(del);
 }

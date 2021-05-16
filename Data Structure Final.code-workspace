@@ -5,14 +5,13 @@
 		},
 		{
 			"path": ".."
-		},
-		{
-			"path": "..\\..\\college"
 		}
 	],
 	"settings": {
 		"files.associations": {
-			"stdio.h": "c"
+			"stdio.h": "c",
+			"istream": "c",
+			"streambuf": "c"
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include "backend.h"
+#include "custServ.h"
 
 static char* filmList[MAX_NODE] = {0};
 static char* airingList[3] = {0};
@@ -31,25 +32,62 @@ void initCinema(hash* studioA, hash* studioB, hash* studioC) {
     }
 }   
 
-void addCust(hash* cinema, char* name, char* film) {
+char* buyTicket(hash* studioA, hash* studioB, hash* studioC, char* name) {
+    int opt;
+    char* film;
+
+    printf("Berikut adalah daftar Film yang tersedia: \n");
+    opt = getFilm(opt)-1;
+    if (isFilmAvailable(filmList[opt])) {
+        film = filmList[opt];
+        if (opt == 0) opt = addCust(studioA, name, film);
+        if (opt == 1) opt = addCust(studioB, name, film);
+        if (opt == 2) opt = addCust(studioC, name, film);
+        if (!opt) {
+            if (filmSuggestion(film)) return buyTicket(studioA, studioB, studioC, name);
+            else return NULL;
+        }
+    } else {
+        if (filmSuggestion(filmList[opt])) return buyTicket(studioA, studioB, studioC, name);
+        else return NULL;
+    }
+    return film;
+}
+
+int addCust(hash* cinema, char* name, char* film) {
     hash custData = malloc(sizeof(struct hash_t));
     custData->name = calloc(255, sizeof(char));
     custData->film = calloc(255, sizeof(char));
     custData->next = NULL;
 
-    if (isFilmAvailable(film)) {
-        int hashVal = generateHash(name);
-        strcpy(custData->name, name);
-        strcpy(custData->film, film);
+    int hashVal = generateHash(name);
+    strcpy(custData->name, name);
+    strcpy(custData->film, film);
 
-        if (cinema[hashVal] != NULL) {
-            filmSuggestion(film);
-        } else {
-            cinema[hashVal] = custData;
-        }
+    if (cinema[hashVal] != NULL) {
+        return 0;
     } else {
-        filmSuggestion(film);
+        cinema[hashVal] = custData;
     }
+}
+
+void getCinemaStats(hash* obj) {
+    for (int i=0; i<MAX_ARR; i++) {
+        hash temp = obj[i];
+        if (temp != NULL) {
+            printf("[%d] %s -> %s\n", i, temp->name, temp->film);
+        }
+    }
+}
+
+int getFilm() {
+    int opt;
+    for (int i=0; i<MAX_NODE; i++) {
+        printf("[%d] %s\n", i+1, filmList[i]);
+    }
+    printf("Masukkan pilihan anda: ");
+    scanf("%d", &opt);
+    return opt;
 }
 
 static char* generateAlias(char* name) {
@@ -71,7 +109,7 @@ static char* generateAlias(char* name) {
     return alias;
 }
 
-int generateHash(char* name) {
+static int generateHash(char* name) {
     int val = 0;
     unsigned long ctr = 0;
     for (int i=0; i<strlen(name)-1; i++) {
@@ -85,48 +123,27 @@ int generateHash(char* name) {
     return val;
 }
 
-unsigned length(const unsigned long num) {
+static unsigned length(const unsigned long num) {
     if (num < 10) return 1;
     return 1 + length(num/10);
 }
 
-static int filmSuggestion(char* film) {
+int filmSuggestion(char* film) {
     char ans[3];
-    printf("%s belum ditayangkan saat ini, apakah anda ingin mencoba memesan film lainnya ?\n", film);
+    printf("%s belum ditayangkan saat ini, apakah anda ingin memesan film lainnya ?\n", film);
     printf("Jawaban [y/n]: ");
     scanf("%s", ans);
-
-    if (!strcmp(ans, "y")) {
-        printf("Berikut film yang hari ini sedang ditayangkan:\n");
-        for (int i=0; i<3; i++) {
-            printf("[%d] %s\n", i+1, airingList[i]);
-        }
-        printf("Ketik angka yang sesuai untuk memesan film atau ketik 4 untuk membatalkan pemesanan: ");
-        scanf("%s", ans);
-
-        if (atoi(ans) % 4 != 0) {
-            // Func Pembayaran
-        } else {
-            orderCanceled();
-        }
+    if (ans[0] == 'y') {
+        return 1;
     } else {
-        orderCanceled();
-    }
-}
-
-void getCinemaStats(hash* obj) {
-    for (int i=0; i<MAX_ARR; i++) {
-        hash temp = obj[i];
-        if (temp != NULL) {
-            printf("[%d] %s -> %s\n", i, temp->name, temp->film);
-        }
+        return 0;
     }
 }
 
 static int isFilmAvailable(char* film) {
     if (airingList[0] == 0) return 0;
     for (int i=0; i<3; i++) {
-        if (!strcmp(film, airingList[i])) return 1;
+        if (!strcmp(film, airingList[i])) return i+1;
     }
     return 0;
 }
@@ -218,3 +235,6 @@ static void colorized(int matrices[MAX_NODE][MAX_NODE], int* res) {
     for (int x=0; x<MAX_NODE; x++) res[x] = color[x];
 }
 
+static void orderCanceled() {
+    printf("Mohon Maaf atas ketidaknyamanannya...\n");
+}
